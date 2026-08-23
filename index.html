@@ -14,9 +14,10 @@
 <script>
 (async()=>{
   try{
-    const response=await fetch('./app.html?v=20260823-fixed-screen',{cache:'no-cache'});
+    const response=await fetch('./app.html?v=20260823-counter-clink',{cache:'no-cache'});
     if(!response.ok) throw new Error('Could not load the app.');
     let html=await response.text();
+
     const stylesheets=[
       '<link rel="stylesheet" href="./fixed-screen.css?v=20260823a">',
       '<link rel="stylesheet" href="./mobile-tweaks.css?v=20260823b">'
@@ -26,6 +27,82 @@
     }else if(!html.includes('mobile-tweaks.css')){
       html=html.replace('</head>','<link rel="stylesheet" href="./mobile-tweaks.css?v=20260823b">\n</head>');
     }
+
+    // Replace the softer counter sound at load time with a brighter,
+    // two-hit metallic clink that is easy to hear on phones, Chromebooks
+    // and projector speakers. The flip sound itself is unchanged.
+    const soundStart=html.indexOf('  function counterMoveSound(direction=1){');
+    const soundEnd=html.indexOf('\n  function writeStatic(card,digit){',soundStart);
+    if(soundStart!==-1 && soundEnd!==-1){
+      const louderCounterSound=`  function counterMoveSound(direction=1){
+    if(!soundOn) return;
+    ensureAudio();
+    const ctx=audioCtx;
+    const t=ctx.currentTime;
+
+    // Keep the sound centred so it survives mono/mobile playback.
+    const master=ctx.createGain();
+    master.gain.setValueAtTime(1.0,t);
+    master.gain.exponentialRampToValueAtTime(0.001,t+0.36);
+    master.connect(ctx.destination);
+
+    // Bright metal partials: these frequencies carry well on small speakers.
+    const partials=[
+      [760,0.38,0.20],
+      [1120,0.31,0.17],
+      [1640,0.24,0.14],
+      [2280,0.17,0.11]
+    ];
+    partials.forEach(([freq,level,duration],i)=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.type=i<2?'triangle':'sine';
+      osc.frequency.setValueAtTime(freq,t);
+      osc.frequency.exponentialRampToValueAtTime(freq*0.83,t+duration);
+      gain.gain.setValueAtTime(0.001,t);
+      gain.gain.exponentialRampToValueAtTime(level,t+0.004);
+      gain.gain.exponentialRampToValueAtTime(0.001,t+duration);
+      osc.connect(gain).connect(master);
+      osc.start(t);
+      osc.stop(t+duration+0.02);
+    });
+
+    // Crisp contact click.
+    const clickBuffer=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.05),ctx.sampleRate);
+    const clickData=clickBuffer.getChannelData(0);
+    for(let i=0;i<clickData.length;i++){
+      const p=i/clickData.length;
+      clickData[i]=(Math.random()*2-1)*Math.pow(1-p,3.1);
+    }
+    const click=ctx.createBufferSource();
+    click.buffer=clickBuffer;
+    const high=ctx.createBiquadFilter();
+    high.type='highpass';
+    high.frequency.value=850;
+    const clickGain=ctx.createGain();
+    clickGain.gain.value=0.88;
+    click.connect(high).connect(clickGain).connect(master);
+    click.start(t);
+
+    // A second lighter "clink" after the first impact.
+    const t2=t+0.115;
+    [920,1380,2050].forEach((freq,i)=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.type='sine';
+      osc.frequency.setValueAtTime(freq,t2);
+      gain.gain.setValueAtTime(0.001,t2);
+      gain.gain.exponentialRampToValueAtTime([0.30,0.21,0.14][i],t2+0.003);
+      gain.gain.exponentialRampToValueAtTime(0.001,t2+0.12);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t2);
+      osc.stop(t2+0.13);
+    });
+  }
+`;
+      html=html.slice(0,soundStart)+louderCounterSound+html.slice(soundEnd);
+    }
+
     document.open();
     document.write(html);
     document.close();
