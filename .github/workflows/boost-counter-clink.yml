@@ -1,4 +1,5 @@
 name: Boost counter clink sound
+# Trigger after workflow is present on main
 
 on:
   push:
