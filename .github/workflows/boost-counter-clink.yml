@@ -1,5 +1,6 @@
 name: Boost counter clink sound
 # Trigger after workflow is present on main
+# Merge this branch to run the sound patch
 
 on:
   push:
