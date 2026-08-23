@@ -1,0 +1,101 @@
+/* Mobile / Chromebook finishing tweaks 2026-08-23
+   - remove inherited mobile top padding so the app sits higher
+   - make place-value labels clearly readable */
+
+@media (max-width:1050px), (orientation:portrait){
+  .app{
+    padding-top:1px !important;
+  }
+
+  /* The original small-screen rules added 45px of top padding.
+     Reset it so that space is used for the teaching content instead. */
+  .topbar{
+    padding:0 !important;
+    margin:0 !important;
+    min-height:32px !important;
+  }
+
+  .title{
+    margin:0 !important;
+    line-height:1 !important;
+  }
+
+  .digit-unit{
+    grid-template-rows:22px 13px 17px minmax(0,1fr) 22px !important;
+    row-gap:1px !important;
+  }
+
+  .rings{
+    height:13px !important;
+    margin:0 !important;
+  }
+
+  .digit-label{
+    min-height:17px !important;
+    font-size:11px !important;
+    line-height:17px !important;
+    font-weight:1000 !important;
+    letter-spacing:.65px !important;
+    color:#ffffff !important;
+    text-align:center !important;
+    text-transform:uppercase !important;
+    text-shadow:0 1px 2px rgba(0,0,0,.95) !important;
+    z-index:5;
+    white-space:nowrap;
+  }
+}
+
+/* Narrow portrait phones: keep labels clear without using extra page height. */
+@media (max-width:420px) and (orientation:portrait){
+  .topbar{min-height:30px !important}
+  .digit-unit{
+    grid-template-rows:20px 11px 15px minmax(0,1fr) 20px !important;
+  }
+  .flip-arrow{
+    width:20px !important;
+    height:20px !important;
+    font-size:12px !important;
+  }
+  .rings{height:11px !important}
+  .ring{height:9px !important}
+  .digit-label{
+    min-height:15px !important;
+    font-size:10px !important;
+    line-height:15px !important;
+    letter-spacing:.45px !important;
+  }
+}
+
+/* Chromebook / small laptop landscape: preserve the side-by-side view,
+   but make Tens and Ones easier to read from a pupil's seat. */
+@media (orientation:landscape) and (min-width:650px) and (max-width:1050px){
+  .topbar{
+    padding:0 !important;
+    margin:0 !important;
+  }
+  .digit-unit{
+    grid-template-rows:25px 13px 15px minmax(0,1fr) 25px !important;
+  }
+  .digit-label{
+    min-height:15px !important;
+    font-size:10px !important;
+    line-height:15px !important;
+    font-weight:1000 !important;
+    letter-spacing:.55px !important;
+    color:#fff !important;
+    text-shadow:0 1px 2px rgba(0,0,0,.95) !important;
+  }
+}
+
+/* Very short landscape phones need a little more compression. */
+@media (orientation:landscape) and (max-height:520px) and (min-width:650px){
+  .digit-unit{
+    grid-template-rows:18px 8px 11px minmax(0,1fr) 18px !important;
+  }
+  .digit-label{
+    min-height:11px !important;
+    font-size:8px !important;
+    line-height:11px !important;
+    letter-spacing:.3px !important;
+  }
+}
