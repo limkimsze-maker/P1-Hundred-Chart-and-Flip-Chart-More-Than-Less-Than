@@ -1,4 +1,5 @@
 name: Apply fixed-screen responsive layout
+# Trigger rerun after workflow exists on the default branch
 
 on:
   push:
