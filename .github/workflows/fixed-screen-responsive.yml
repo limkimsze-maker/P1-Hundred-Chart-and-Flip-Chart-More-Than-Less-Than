@@ -1,5 +1,6 @@
 name: Apply fixed-screen responsive layout
 # Trigger rerun after workflow exists on the default branch
+# Merge this change to trigger the patch from a normal main-branch merge
 
 on:
   push:
